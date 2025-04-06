@@ -1,0 +1,10 @@
+version: '3'
+services:
+  bot:
+    image: ghcr.io/sofia-q/phoenix-bot:latest
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - .:/discord-bot
+    command: ['./main']

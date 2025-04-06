@@ -52,5 +52,13 @@ jobs:
           docker tag $IMAGE_NAME $IMAGE_ID:$VERSION
           docker push $IMAGE_ID:$VERSION
 
-
+      - name: Fetch Secrets
+        run: |
+          printf ${{secrets.ENV}} >> .env
+          printf ${{secrets.VM_PKEY}} >> pkey
+      - name: move env to VM
+        run: |
+          "scp -i pkey -o StrictHostKeyChecking=no .env ubuntu@{{secrets.VM_IP}}:.env"
+          "scp -i pkey -o StrictHostKeyChecking=no docker-compose-dev.yml ubuntu@{{secrets.VM_IP}}:docker-compose.yml"
+          ssh -o StrictHostKeyChecking=no ubuntu@{{secrets.VM_IP}} -i pkey | echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin && docker-compose up -d
 
