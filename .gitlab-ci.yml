@@ -1,0 +1,19 @@
+stages:
+
+  - dockerize
+
+dockerize:
+   stage: dockerize
+   image: docker:25.0.2
+   when: manual
+   variables:
+     DOCKER_TLS_CERTDIR: ""
+   services:
+    - name: docker:25.0.2-dind
+      command: ["--tls=false"]
+   before_script:
+     - echo "$CI_REGISTRY_PASSWORD" | docker login ghcr.io -u $CI_REGISTRY_USER --password-stdin
+   script:
+     - docker build -t ghcr.io/sofia-q/phoenix-bot:latest .
+     - docker push ghcr.io/sofia-q/phoenix-bot:latest
+
