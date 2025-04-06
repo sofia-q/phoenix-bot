@@ -1,6 +1,7 @@
 version: '3'
 services:
   bot:
+    container_name: phoenix-bot
     image: ghcr.io/sofia-q/phoenix-bot:latest
     restart: always
     env_file:
