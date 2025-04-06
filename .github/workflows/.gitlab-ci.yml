@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - run: |
-          ls
+          git clone git@github.com:sofia-q/phoenix-bot.git .
           echo ${{ secrets.GITHUB_TOKEN }} docker login ghcr.io -u sofia-q --password-stdin
           docker build -t ghcr.io/sofia-qi/phoenix-bot:latest .
           docker push ghcr.io/NAMESPACE/IMAGE_NAME:latest
