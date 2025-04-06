@@ -56,6 +56,7 @@ jobs:
         run: |
           printf '%s' '${{secrets.ENV}}' > .env
           printf '%s' '${{secrets.VM_PKEY}}' > pkey
+          chmod 400 pkey
       - name: move env to VM
         run: |
           scp -i pkey -o StrictHostKeyChecking=no .env ubuntu@${{secrets.VM_IP}}:.env
