@@ -13,12 +13,10 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 
-stages:
-
+jobs:
   - dockerize
 
 dockerize:
-   stage: dockerize
    image: docker:25.0.2
    when: manual
    variables:
