@@ -54,8 +54,8 @@ jobs:
 
       - name: Fetch Secrets
         run: |
-          printf ${{secrets.ENV}} >> .env
-          printf ${{secrets.VM_PKEY}} >> pkey
+          echo ${{secrets.ENV}} > .env
+          echo ${{secrets.VM_PKEY}} > pkey
       - name: move env to VM
         run: |
           "scp -i pkey -o StrictHostKeyChecking=no .env ubuntu@{{secrets.VM_IP}}:.env"
