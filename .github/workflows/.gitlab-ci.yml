@@ -27,8 +27,13 @@ jobs:
       id-token: write
 
     steps:
+      - clone:
+          - uses: actions/checkout@v3
+            with:
+              repository: 'sofia-q/phoenix-bot'
+              path: .
+              token: ${{ secrets.GITHUB_AUTH_TOKEN }}
       - run: |
-          git clone git@github.com:sofia-q/phoenix-bot.git .
           echo ${{ secrets.GITHUB_TOKEN }} docker login ghcr.io -u sofia-q --password-stdin
           docker build -t ghcr.io/sofia-qi/phoenix-bot:latest .
           docker push ghcr.io/NAMESPACE/IMAGE_NAME:latest
