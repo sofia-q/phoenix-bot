@@ -11,6 +11,8 @@ import (
 	"phoenixbot/bot/env"
 
 	"github.com/bwmarrin/discordgo"
+	"gorm.io/gorm"
+	"phoenixbot/bot/db"
 )
 
 // Bot parameters
@@ -19,6 +21,8 @@ var (
 	BotToken       = flag.String("token", "", "Bot access token")
 	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
 )
+
+var Db gorm.DB
 
 var s *discordgo.Session
 
@@ -64,6 +68,9 @@ func main() {
 	}
 
 	registeredCommands := addCommands()
+
+	db.ConnectDB()
+
 	defer s.Close()
 
 	stop := make(chan os.Signal, 1)

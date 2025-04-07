@@ -10,3 +10,21 @@ services:
     volumes:
       - .:/discord-bot
     command: ['./main']
+  db:
+    image: mysql:9.2-oracle
+    container_name: mysql_db
+    restart: always
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_DATABASE: test_db
+      MYSQL_ROOT_PASSWORD: rootpw1234
+    expose:
+      # Opens port 3306 on the container
+      - '3306'
+    volumes:
+      - test_db:/var/lib/mysql
+volumes:
+  test_db:
