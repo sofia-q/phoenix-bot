@@ -34,6 +34,6 @@ func ConnectDB() {
 		panic("failed to connect database")
 		return
 	}
-	_ = Db.Exec("CREATE DATABASE IF NOT EXISTS database;")
+	_ = Db.Exec("CREATE DATABASE bot_database;")
 	log.Print("DB connected:" + Db.Migrator().CurrentDatabase())
 }

@@ -12,7 +12,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"gorm.io/gorm"
-	"phoenixbot/bot/db"
 )
 
 // Bot parameters
@@ -69,7 +68,7 @@ func main() {
 
 	registeredCommands := addCommands()
 
-	db.ConnectDB()
+	//db.ConnectDB()
 
 	defer s.Close()
 
