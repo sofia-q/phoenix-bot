@@ -28,12 +28,11 @@ func ConnectDB() {
 		return
 	}
 	log.Println("Connecting to database ...")
-	dsn := databaseUser + ":" + databasePw + "@(" + databaseIp + ":3306)/?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := databaseUser + ":" + databasePw + "@(" + databaseIp + ":3306)/phoenix_bot_db?charset=utf8mb4&parseTime=True&loc=Local"
 	Db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 		return
 	}
-	_ = Db.Exec("CREATE DATABASE bot_database;")
 	log.Print("DB connected:" + Db.Migrator().CurrentDatabase())
 }

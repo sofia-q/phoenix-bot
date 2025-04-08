@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"phoenixbot/bot/commandhandlers"
 	"phoenixbot/bot/commands"
+	"phoenixbot/bot/db"
 	"phoenixbot/bot/env"
 
 	"github.com/bwmarrin/discordgo"
@@ -68,7 +69,7 @@ func main() {
 
 	registeredCommands := addCommands()
 
-	//db.ConnectDB()
+	db.ConnectDB()
 
 	defer s.Close()
 
