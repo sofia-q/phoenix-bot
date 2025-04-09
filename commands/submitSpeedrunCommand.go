@@ -70,7 +70,7 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 
 	// Get the value from the option map.
 	// When the option exists, ok = true
-	if option, ok := optionMap["weapon-type-option"]; ok {
+	if option, ok := optionMap["weapon-type"]; ok {
 		response += option.StringValue()
 	}
 	response += " time taken: "
