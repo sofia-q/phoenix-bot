@@ -11,7 +11,7 @@ func init() {
 }
 
 var permissionOverviewCommand = command{
-	name: submitSpeedrunCommandName,
+	name: permissionOverviewCommandName,
 	// this is the metadata for the commands
 	commandMetadata: &discordgo.ApplicationCommand{
 		Name:                     permissionOverviewCommandName,

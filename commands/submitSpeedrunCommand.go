@@ -3,6 +3,7 @@ package commands
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"log"
 	"phoenixbot/bot/model"
 )
 
@@ -14,6 +15,7 @@ func init() {
 			Value: model.WeaponType.GetWeaponHandle(model.WeaponType(i)),
 		})
 	}
+	log.Printf("choices added: " + string(len(weaponChoices)))
 }
 
 var weaponChoices []*discordgo.ApplicationCommandOptionChoice
@@ -28,7 +30,6 @@ var submitSpeedRunCommand = command{
 		// of the command.
 		Description: "Submit a speedrun for verification",
 		Options: []*discordgo.ApplicationCommandOption{
-
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
 				Name:        "weapon-type-option",
