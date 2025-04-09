@@ -9,6 +9,8 @@ import (
 
 var Db *gorm.DB
 
+var models []interface{}
+
 func ConnectDB() {
 
 	log.Println("Connecting to database ...")
@@ -19,4 +21,6 @@ func ConnectDB() {
 		return
 	}
 	log.Print("DB connected:" + Db.Migrator().CurrentDatabase())
+	log.Print("Migrating database ...")
+	_ = Db.AutoMigrate(models...)
 }

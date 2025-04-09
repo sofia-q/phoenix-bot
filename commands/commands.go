@@ -16,6 +16,12 @@ type command struct {
 	commandHandler func(s *discordgo.Session, i *discordgo.InteractionCreate)
 }
 
+func registerCommand(c command) {
+	log.Printf("Registering discordCommand: " + c.name)
+	Commands = append(Commands, c.discordCommand)
+	CommandHandlers[c.name] = c.commandHandler
+}
+
 var (
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
