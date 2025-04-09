@@ -11,7 +11,7 @@ func init() {
 var submitSpeedRunCommand = command{
 	name: submitSpeedrunCommandName,
 	// this is the metadata for the commands
-	discordCommand: &discordgo.ApplicationCommand{
+	commandMetadata: &discordgo.ApplicationCommand{
 		Name: submitSpeedrunCommandName,
 		// All commands and options must have a description
 		// Commands/options without description will fail the registration

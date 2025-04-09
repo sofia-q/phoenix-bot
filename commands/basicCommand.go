@@ -11,7 +11,7 @@ func init() {
 var basicCommand = command{
 	name: basicCommandName,
 	//this is the metadata for the commands
-	discordCommand: &discordgo.ApplicationCommand{
+	commandMetadata: &discordgo.ApplicationCommand{
 		Name: basicCommandName,
 		// All commands and options must have a description
 		// Commands/options without description will fail the registration
