@@ -75,15 +75,17 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 	}
 	response += " time taken: "
 	if option, ok := optionMap["minutes"]; ok {
-		response += fmt.Sprintf(" %d:", option.IntValue())
+		response += fmt.Sprintf(" %02d:", option.IntValue())
 	}
 	if option, ok := optionMap["seconds"]; ok {
-		response += fmt.Sprintf("%d ", option.IntValue())
+		response += fmt.Sprintf("%02d ", option.IntValue())
 	}
 	response += " link: "
 	if option, ok := optionMap["proof"]; ok {
 		response += option.StringValue()
 	}
+	response += " userID: " + i.Member.User.ID
+
 	_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
