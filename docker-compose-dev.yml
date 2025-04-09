@@ -1,16 +1,16 @@
-version: '3'
 services:
   bot:
     container_name: phoenix-bot
     image: ghcr.io/sofia-q/phoenix-bot:latest
     restart: always
+    pull_policy: always
     env_file:
       - .env
     volumes:
       - .:/discord-bot
     command: ['./main']
   db:
-    image: mysql:latest
+    image: mysql:9.2.0
     container_name: mysql_db
     restart: always
     ports:
