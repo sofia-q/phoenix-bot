@@ -4,9 +4,17 @@ import (
 	"errors"
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"log"
+	"phoenixbot/bot/env"
 	"strings"
 	"time"
 )
+
+type command struct {
+	name           string
+	discordCommand *discordgo.ApplicationCommand
+	commandHandler func(s *discordgo.Session, i *discordgo.InteractionCreate)
+}
 
 var (
 	integerOptionMinValue          = 1.0
@@ -14,13 +22,6 @@ var (
 	defaultMemberPermissions int64 = discordgo.PermissionManageServer
 
 	Commands = []*discordgo.ApplicationCommand{
-		{
-			Name: "basic-command",
-			// All commands and options must have a description
-			// Commands/options without description will fail the registration
-			// of the command.
-			Description: "Basic command",
-		},
 		{
 			Name:                     "permission-overview",
 			Description:              "Command for demonstration of default command permissions",
@@ -197,15 +198,7 @@ var (
 		},
 	}
 
-	commandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
-		"basic-command": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
-			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "Hey there! Congratulations, you just executed your first slash command",
-				},
-			})
-		},
+	CommandHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 		"basic-command-with-files": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 			s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -511,3 +504,35 @@ var (
 		},
 	}
 )
+
+func AddCommands(s *discordgo.Session) []*discordgo.ApplicationCommand {
+	log.Println("Adding commands...")
+	registeredCommands := make([]*discordgo.ApplicationCommand, len(Commands))
+	for i, v := range Commands {
+		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *env.GuildID, v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' discordCommand: %v", v.Name, err)
+		}
+		registeredCommands[i] = cmd
+	}
+	return registeredCommands
+}
+
+func RemoveCommands(s *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
+	log.Println("Removing commands...")
+	// // We need to fetch the commands, since deleting requires the discordCommand ID.
+	// // We are doing this from the returned commands on line 375, because using
+	// // this will delete all the commands, which might not be desirable, so we
+	// // are deleting only the commands that we added.
+	// registeredCommands, err := s.ApplicationCommands(s.State.User.ID, *GuildID)
+	// if err != nil {
+	// 	log.Fatalf("Could not fetch registered commands: %v", err)
+	// }
+
+	for _, v := range registeredCommands {
+		err := s.ApplicationCommandDelete(s.State.User.ID, *env.GuildID, v.ID)
+		if err != nil {
+			log.Panicf("Cannot delete '%v' discordCommand: %v", v.Name, err)
+		}
+	}
+}
