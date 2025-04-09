@@ -17,7 +17,7 @@ type command struct {
 }
 
 func registerCommand(c command) {
-	log.Printf("Registering discordCommand: " + c.name)
+	log.Printf("Registering command: " + c.name)
 	Commands = append(Commands, c.discordCommand)
 	CommandHandlers[c.name] = c.commandHandler
 }

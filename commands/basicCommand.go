@@ -22,7 +22,7 @@ var basicDiscordCommand = &discordgo.ApplicationCommand{
 	Name: basicCommandName,
 	// All commands and options must have a description
 	// Commands/options without description will fail the registration
-	// of the discordCommand.
+	// of the command.
 	Description: "Basic discordCommand",
 }
 
