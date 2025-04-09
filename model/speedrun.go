@@ -17,4 +17,5 @@ type Speedrun struct {
 	WeaponType WeaponType `gorm:"type:varchar(255)"`
 	ProofLink  string
 	Season     int
+	IsVerified bool
 }
