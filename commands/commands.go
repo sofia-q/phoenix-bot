@@ -517,7 +517,7 @@ func AddCommands(s *discordgo.Session) []*discordgo.ApplicationCommand {
 	for i, v := range Commands {
 		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *env.GuildID, v)
 		if err != nil {
-			log.Panicf("Cannot create '%v' discordCommand: %v", v.Name, err)
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
 		}
 		registeredCommands[i] = cmd
 	}
@@ -526,7 +526,7 @@ func AddCommands(s *discordgo.Session) []*discordgo.ApplicationCommand {
 
 func RemoveCommands(s *discordgo.Session, registeredCommands []*discordgo.ApplicationCommand) {
 	log.Println("Removing commands...")
-	// // We need to fetch the commands, since deleting requires the discordCommand ID.
+	// // We need to fetch the commands, since deleting requires the command ID.
 	// // We are doing this from the returned commands on line 375, because using
 	// // this will delete all the commands, which might not be desirable, so we
 	// // are deleting only the commands that we added.
@@ -538,7 +538,7 @@ func RemoveCommands(s *discordgo.Session, registeredCommands []*discordgo.Applic
 	for _, v := range registeredCommands {
 		err := s.ApplicationCommandDelete(s.State.User.ID, *env.GuildID, v.ID)
 		if err != nil {
-			log.Panicf("Cannot delete '%v' discordCommand: %v", v.Name, err)
+			log.Panicf("Cannot delete '%v' command: %v", v.Name, err)
 		}
 	}
 }
