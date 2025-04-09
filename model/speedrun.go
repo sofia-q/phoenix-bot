@@ -12,10 +12,10 @@ func init() {
 
 type Speedrun struct {
 	gorm.Model
-	UserId     string
-	TimeTaken  string
-	WeaponType WeaponType `gorm:"type:varchar(255)"`
-	ProofLink  string
-	Season     int
-	IsVerified bool
+	UserId        string
+	TimeInSeconds int
+	WeaponType    WeaponType `gorm:"type:varchar(255)"`
+	ProofLink     string
+	Season        int
+	IsVerified    bool
 }

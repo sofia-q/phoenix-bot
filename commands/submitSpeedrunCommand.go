@@ -22,67 +22,30 @@ var submitSpeedRunCommand = command{
 		Options: []*discordgo.ApplicationCommandOption{
 			{
 				Type:        discordgo.ApplicationCommandOptionString,
-				Name:        "weapon-type-option",
+				Name:        "weapon-type",
 				Description: "Weapon Type",
 				Required:    true,
-				Choices: []*discordgo.ApplicationCommandOptionChoice{
-					{
-						Name:  model.WeaponType.String(model.SwordAndShield),
-						Value: model.WeaponType.GetWeaponHandle(model.SwordAndShield),
-					},
-					{
-						Name:  model.WeaponType.String(model.DualBlades),
-						Value: model.WeaponType.GetWeaponHandle(model.DualBlades),
-					},
-					{
-						Name:  model.WeaponType.String(model.GreatSword),
-						Value: model.WeaponType.GetWeaponHandle(model.GreatSword),
-					},
-					{
-						Name:  model.WeaponType.String(model.LongSword),
-						Value: model.WeaponType.GetWeaponHandle(model.LongSword),
-					},
-					{
-						Name:  model.WeaponType.String(model.Hammer),
-						Value: model.WeaponType.GetWeaponHandle(model.Hammer),
-					},
-					{
-						Name:  model.WeaponType.String(model.HuntingHorn),
-						Value: model.WeaponType.GetWeaponHandle(model.HuntingHorn),
-					},
-					{
-						Name:  model.WeaponType.String(model.Lance),
-						Value: model.WeaponType.GetWeaponHandle(model.Lance),
-					},
-					{
-						Name:  model.WeaponType.String(model.GunLance),
-						Value: model.WeaponType.GetWeaponHandle(model.GunLance),
-					},
-					{
-						Name:  model.WeaponType.String(model.SwitchAxe),
-						Value: model.WeaponType.GetWeaponHandle(model.SwitchAxe),
-					},
-					{
-						Name:  model.WeaponType.String(model.ChargeBlade),
-						Value: model.WeaponType.GetWeaponHandle(model.ChargeBlade),
-					},
-					{
-						Name:  model.WeaponType.String(model.InsectGlaive),
-						Value: model.WeaponType.GetWeaponHandle(model.InsectGlaive),
-					},
-					{
-						Name:  model.WeaponType.String(model.LightBowgun),
-						Value: model.WeaponType.GetWeaponHandle(model.LightBowgun),
-					},
-					{
-						Name:  model.WeaponType.String(model.HeavyBowgun),
-						Value: model.WeaponType.GetWeaponHandle(model.HeavyBowgun),
-					},
-					{
-						Name:  model.WeaponType.String(model.Bow),
-						Value: model.WeaponType.GetWeaponHandle(model.Bow),
-					},
-				},
+				Choices:     weaponTypeChoices,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "minutes",
+				Description: "Minutes",
+				Required:    true,
+				MaxValue:    49,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionInteger,
+				Name:        "seconds",
+				Description: "Seconds",
+				Required:    true,
+				MaxValue:    59,
+			},
+			{
+				Type:        discordgo.ApplicationCommandOptionString,
+				Name:        "proof",
+				Description: "Link to a screenshot as proof",
+				Required:    true,
 			},
 		},
 	},
@@ -110,7 +73,17 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 	if option, ok := optionMap["weapon-type-option"]; ok {
 		response += option.StringValue()
 	}
-
+	response += " time taken: "
+	if option, ok := optionMap["minutes"]; ok {
+		response += fmt.Sprintf(" %d:", option.IntValue())
+	}
+	if option, ok := optionMap["seconds"]; ok {
+		response += fmt.Sprintf("%d ", option.IntValue())
+	}
+	response += " link: "
+	if option, ok := optionMap["proof"]; ok {
+		response += option.StringValue()
+	}
 	_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -120,4 +93,63 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 			),
 		},
 	})
+}
+
+var weaponTypeChoices = []*discordgo.ApplicationCommandOptionChoice{
+	{
+		Name:  model.WeaponType.String(model.SwordAndShield),
+		Value: model.WeaponType.GetWeaponHandle(model.SwordAndShield),
+	},
+	{
+		Name:  model.WeaponType.String(model.DualBlades),
+		Value: model.WeaponType.GetWeaponHandle(model.DualBlades),
+	},
+	{
+		Name:  model.WeaponType.String(model.GreatSword),
+		Value: model.WeaponType.GetWeaponHandle(model.GreatSword),
+	},
+	{
+		Name:  model.WeaponType.String(model.LongSword),
+		Value: model.WeaponType.GetWeaponHandle(model.LongSword),
+	},
+	{
+		Name:  model.WeaponType.String(model.Hammer),
+		Value: model.WeaponType.GetWeaponHandle(model.Hammer),
+	},
+	{
+		Name:  model.WeaponType.String(model.HuntingHorn),
+		Value: model.WeaponType.GetWeaponHandle(model.HuntingHorn),
+	},
+	{
+		Name:  model.WeaponType.String(model.Lance),
+		Value: model.WeaponType.GetWeaponHandle(model.Lance),
+	},
+	{
+		Name:  model.WeaponType.String(model.GunLance),
+		Value: model.WeaponType.GetWeaponHandle(model.GunLance),
+	},
+	{
+		Name:  model.WeaponType.String(model.SwitchAxe),
+		Value: model.WeaponType.GetWeaponHandle(model.SwitchAxe),
+	},
+	{
+		Name:  model.WeaponType.String(model.ChargeBlade),
+		Value: model.WeaponType.GetWeaponHandle(model.ChargeBlade),
+	},
+	{
+		Name:  model.WeaponType.String(model.InsectGlaive),
+		Value: model.WeaponType.GetWeaponHandle(model.InsectGlaive),
+	},
+	{
+		Name:  model.WeaponType.String(model.LightBowgun),
+		Value: model.WeaponType.GetWeaponHandle(model.LightBowgun),
+	},
+	{
+		Name:  model.WeaponType.String(model.HeavyBowgun),
+		Value: model.WeaponType.GetWeaponHandle(model.HeavyBowgun),
+	},
+	{
+		Name:  model.WeaponType.String(model.Bow),
+		Value: model.WeaponType.GetWeaponHandle(model.Bow),
+	},
 }
