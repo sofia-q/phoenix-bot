@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/signal"
 	"phoenixbot/bot/commands"
+	"phoenixbot/bot/components"
 	"phoenixbot/bot/env"
 	"phoenixbot/bot/model"
 
@@ -30,7 +31,7 @@ func init() {
 				h(s, i)
 			}
 		case discordgo.InteractionMessageComponent:
-			if h, ok := commands.ComponentsHandlers[i.MessageComponentData().CustomID]; ok {
+			if h, ok := components.ComponentHandlers[i.MessageComponentData().CustomID]; ok {
 				h(s, i)
 			}
 		}

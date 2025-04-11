@@ -1,13 +1,24 @@
-package commands
+package components
 
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"log"
 	"strings"
 	"time"
 )
 
-var ComponentsHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
+type component struct {
+	name    string
+	handler func(s *discordgo.Session, i *discordgo.InteractionCreate)
+}
+
+func registerComponent(c component) {
+	log.Printf("Registering component: " + c.name)
+	ComponentHandlers[c.name] = c.handler
+}
+
+var ComponentHandlers = map[string]func(s *discordgo.Session, i *discordgo.InteractionCreate){
 	"fd_no": func(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		err := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,

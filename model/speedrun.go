@@ -1,6 +1,7 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"log"
 )
@@ -12,10 +13,16 @@ func init() {
 
 type Speedrun struct {
 	gorm.Model
-	UserId        string
+	ID            uuid.UUID `gorm:"primary_key"`
+	UserId        string    `gorm:"type:varchar(255)"`
 	TimeInSeconds int
-	WeaponType    WeaponType `gorm:"type:varchar(255)"`
-	ProofLink     string
+	WeaponType    string `gorm:"type:varchar(255)"`
+	ProofLink     string `gorm:"type:varchar(255)"`
 	Season        int
 	IsVerified    bool
+}
+
+func (speedrun *Speedrun) BeforeCreate(_ *gorm.DB) (err error) {
+	speedrun.ID = uuid.New()
+	return
 }

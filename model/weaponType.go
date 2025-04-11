@@ -36,25 +36,6 @@ var weaponName = map[WeaponType]string{
 	Bow:            "Bow",
 }
 
-var weaponHandle = map[WeaponType]string{
-	SwordAndShield: "sns",
-	DualBlades:     "db",
-	GreatSword:     "gs",
-	LongSword:      "ls",
-	Hammer:         "ham",
-	HuntingHorn:    "hh",
-	Lance:          "lan",
-	GunLance:       "gl",
-	SwitchAxe:      "sa",
-	ChargeBlade:    "cb",
-	InsectGlaive:   "ig",
-	LightBowgun:    "lbg",
-	HeavyBowgun:    "hbg",
-	Bow:            "bow",
-}
-
 func (wt WeaponType) String() string {
 	return weaponName[wt]
 }
-
-func (wt WeaponType) GetWeaponHandle() string { return weaponHandle[wt] }

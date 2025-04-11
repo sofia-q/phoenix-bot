@@ -15,7 +15,8 @@ func ConnectDB() {
 
 	log.Println("Connecting to database ...")
 	dsn := env.DatabaseUser + ":" + env.DatabasePw + "@(" + env.DatabaseIp + ":3306)/phoenix_bot_db?charset=utf8mb4&parseTime=True&loc=Local"
-	Db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	var err error
+	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 		return
