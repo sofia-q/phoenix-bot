@@ -1,4 +1,4 @@
-package model
+package db
 
 import (
 	"github.com/google/uuid"
@@ -25,4 +25,13 @@ type Speedrun struct {
 func (speedrun *Speedrun) BeforeCreate(_ *gorm.DB) (err error) {
 	speedrun.ID = uuid.New()
 	return
+}
+
+func FindSpeedrunById(uuid uuid.UUID) (speedrun *Speedrun, err error) {
+	var foundSpeedrun Speedrun
+	result := Db.First(&foundSpeedrun, "id = ?", uuid.String())
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &foundSpeedrun, nil
 }
