@@ -82,7 +82,7 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 	}
 	if option, ok := optionMap["proof"]; ok {
 		newSpeedrun.ProofLink = option.StringValue()
-		if _, err := url.ParseRequestURI(option.StringValue()); err != nil {
+		if _, parseUrlErr := url.ParseRequestURI(option.StringValue()); parseUrlErr != nil {
 			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 				// Ignore type for now, they will be discussed in "responses"
 				Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -97,20 +97,13 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 	newSpeedrun.UserId = i.Member.User.ID
 	newSpeedrun.IsVerified = false
 	newSpeedrun.Season = 1
-	_ = db.Db.Create(&newSpeedrun)
-	response := "weapon type entered: " + newSpeedrun.WeaponType
-	response += " time taken: "
-	response += fmt.Sprintf(" %02d:", newSpeedrun.TimeInSeconds/60)
-	response += fmt.Sprintf("%02d ", newSpeedrun.TimeInSeconds%60)
-	response += " link: "
-	response += newSpeedrun.ProofLink
-	response += " user: " + "<@" + newSpeedrun.UserId + ">"
-	response += " new run ID: " + newSpeedrun.ID.String()
-
+	saveErr := newSpeedrun.Save()
+	if saveErr != nil {
+		log.Println(saveErr)
+	}
 	var runInfo = &discordgo.MessageEmbed{
-		Title:       "Speedrun submitted",
-		Type:        "rich",
-		Description: response,
+		Title: "Speedrun submitted",
+		Type:  "rich",
 		Fields: []*discordgo.MessageEmbedField{
 			{
 				Name:  "User",
@@ -174,10 +167,9 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 		// Ignore type for now, they will be discussed in "responses"
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf(
-				"Speedrun submitted!",
-			),
-			Embeds: []*discordgo.MessageEmbed{runInfo},
+			Content: "",
+			Flags:   discordgo.MessageFlagsEphemeral,
+			Embeds:  []*discordgo.MessageEmbed{runInfo},
 			AllowedMentions: &discordgo.MessageAllowedMentions{
 				Parse: []discordgo.AllowedMentionType{},
 				Users: []string{},

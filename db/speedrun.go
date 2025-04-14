@@ -35,3 +35,7 @@ func FindSpeedrunById(uuid uuid.UUID) (speedrun *Speedrun, err error) {
 	}
 	return &foundSpeedrun, nil
 }
+
+func (speedrun *Speedrun) Save() (err error) {
+	return Db.Save(&speedrun).Error
+}

@@ -18,23 +18,33 @@ var verifySpeedrunComponent = component{
 		id := i.Interaction.Message.Embeds[0].Footer.Text
 
 		foundSpeedrun, err := db.FindSpeedrunById(uuid.MustParse(id))
-		//TODO: add verify db functionality here.
-		//_ = s.ChannelMessageDelete("1358151701420577009", i.Interaction.Message.ID)
+		foundSpeedrun.IsVerified = true
+		err = foundSpeedrun.Save()
 		if err != nil {
-			respondErr := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-				Type: discordgo.InteractionResponseChannelMessageWithSource,
-				Data: &discordgo.InteractionResponseData{
-					Content: "error! DB entry not found",
+			log.Println(err.Error())
+		}
+		i.Interaction.Message.Content = ""
+		i.Interaction.Message.Embeds[0].Title = "Speedrun Verified!"
+		i.Interaction.Message, err = s.ChannelMessageEditComplex(
+			&discordgo.MessageEdit{
+				Content: &i.Interaction.Message.Content,
+				Embeds:  &i.Interaction.Message.Embeds,
+				AllowedMentions: &discordgo.MessageAllowedMentions{
+					Parse: []discordgo.AllowedMentionType{},
+					Users: []string{},
 				},
+				Components: &[]discordgo.MessageComponent{},
+				Channel:    "1358151701420577009",
+				ID:         i.Interaction.Message.ID,
 			})
-			if respondErr != nil {
-				log.Println(respondErr.Error())
-			}
+		if err != nil {
+			log.Println(err.Error())
 		}
 		respondErr := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 			Type: discordgo.InteractionResponseChannelMessageWithSource,
 			Data: &discordgo.InteractionResponseData{
-				Content: "speedrun found, ID: " + foundSpeedrun.ID.String(),
+				Content: "Success! Speedrun verified!",
+				Flags:   discordgo.MessageFlagsEphemeral,
 			},
 		})
 		if err != nil {
