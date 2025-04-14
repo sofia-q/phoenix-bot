@@ -3,7 +3,9 @@ package commands
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
-	"phoenixbot/bot/model"
+	"log"
+	"net/url"
+	"phoenixbot/bot/db"
 )
 
 func init() {
@@ -65,93 +67,172 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 	for _, opt := range options {
 		optionMap[opt.Name] = opt
 	}
-
-	response := "weapon type entered: "
+	var newSpeedrun = db.Speedrun{}
 
 	// Get the value from the option map.
 	// When the option exists, ok = true
 	if option, ok := optionMap["weapon-type"]; ok {
-		response += option.StringValue()
+		newSpeedrun.WeaponType = option.StringValue()
 	}
-	response += " time taken: "
 	if option, ok := optionMap["minutes"]; ok {
-		response += fmt.Sprintf(" %02d:", option.IntValue())
+		newSpeedrun.TimeInSeconds = int(option.IntValue() * 60)
 	}
 	if option, ok := optionMap["seconds"]; ok {
-		response += fmt.Sprintf("%02d ", option.IntValue())
+		newSpeedrun.TimeInSeconds += int(option.IntValue())
 	}
-	response += " link: "
 	if option, ok := optionMap["proof"]; ok {
-		response += option.StringValue()
+		newSpeedrun.ProofLink = option.StringValue()
+		if _, parseUrlErr := url.ParseRequestURI(option.StringValue()); parseUrlErr != nil {
+			_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				// Ignore type for now, they will be discussed in "responses"
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: "Error! Invalid image URL!",
+					Flags:   discordgo.MessageFlagsEphemeral,
+				},
+			})
+			return
+		}
 	}
-	response += " userID: " + i.Member.User.ID
+	newSpeedrun.UserId = i.Member.User.ID
+	newSpeedrun.IsVerified = false
+	newSpeedrun.Season = 1
+	saveErr := newSpeedrun.Save()
+	if saveErr != nil {
+		log.Println(saveErr)
+	}
+	var runInfo = &discordgo.MessageEmbed{
+		Title: "Speedrun submitted",
+		Type:  "rich",
+		Fields: []*discordgo.MessageEmbedField{
+			{
+				Name:  "User",
+				Value: "<@" + newSpeedrun.UserId + ">",
+			},
+			{
+				Name:  "Weapon Type",
+				Value: newSpeedrun.WeaponType,
+			},
+			{
+				Name:  "Time Taken",
+				Value: fmt.Sprintf("%02d:%02d", newSpeedrun.TimeInSeconds/60, newSpeedrun.TimeInSeconds%60),
+			},
+			{
+				Name: "Proof:",
+			},
+		},
+		Image: &discordgo.MessageEmbedImage{
+			URL: newSpeedrun.ProofLink,
+		},
+		Footer: &discordgo.MessageEmbedFooter{
+			Text: newSpeedrun.ID.String(),
+		},
+	}
 
+	_, err := s.ChannelMessageSendComplex("1358151701420577009", &discordgo.MessageSend{
+		Content: "note: this is the message in the admin only verify channel",
+		Components: []discordgo.MessageComponent{
+			// ActionRow is a container of all buttons within the same row.
+			discordgo.ActionsRow{
+				Components: []discordgo.MessageComponent{
+					discordgo.Button{
+						// Label is what the user will see on the button.
+						Label: "Verify",
+						// Style provides coloring of the button. There are not so many styles tho.
+						Style: discordgo.SuccessButton,
+						// Disabled allows bot to disable some buttons for users.
+						Disabled: false,
+						// CustomID is a thing telling Discord which data to send when this button will be pressed.
+						CustomID: "verify_button_yes",
+					},
+					discordgo.Button{
+						// Label is what the user will see on the button.
+						Label: "Un-Verify (WIP)",
+						// Style provides coloring of the button. There are not so many styles tho.
+						Style: discordgo.DangerButton,
+						// Disabled allows bot to disable some buttons for users.
+						Disabled: true,
+						// CustomID is a thing telling Discord which data to send when this button will be pressed.
+						CustomID: "fd_no",
+					},
+				},
+			},
+		},
+		Embeds: []*discordgo.MessageEmbed{runInfo},
+	})
+	if err != nil {
+		log.Printf(err.Error())
+	}
 	_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
-			Content: fmt.Sprintf(
-				response,
-			),
+			Content: "",
+			Flags:   discordgo.MessageFlagsEphemeral,
+			Embeds:  []*discordgo.MessageEmbed{runInfo},
+			AllowedMentions: &discordgo.MessageAllowedMentions{
+				Parse: []discordgo.AllowedMentionType{},
+				Users: []string{},
+			},
 		},
 	})
 }
 
 var weaponTypeChoices = []*discordgo.ApplicationCommandOptionChoice{
 	{
-		Name:  model.WeaponType.String(model.SwordAndShield),
-		Value: model.WeaponType.GetWeaponHandle(model.SwordAndShield),
+		Name:  db.WeaponType.String(db.SwordAndShield),
+		Value: db.WeaponType.String(db.SwordAndShield),
 	},
 	{
-		Name:  model.WeaponType.String(model.DualBlades),
-		Value: model.WeaponType.GetWeaponHandle(model.DualBlades),
+		Name:  db.WeaponType.String(db.DualBlades),
+		Value: db.WeaponType.String(db.DualBlades),
 	},
 	{
-		Name:  model.WeaponType.String(model.GreatSword),
-		Value: model.WeaponType.GetWeaponHandle(model.GreatSword),
+		Name:  db.WeaponType.String(db.GreatSword),
+		Value: db.WeaponType.String(db.GreatSword),
 	},
 	{
-		Name:  model.WeaponType.String(model.LongSword),
-		Value: model.WeaponType.GetWeaponHandle(model.LongSword),
+		Name:  db.WeaponType.String(db.LongSword),
+		Value: db.WeaponType.String(db.LongSword),
 	},
 	{
-		Name:  model.WeaponType.String(model.Hammer),
-		Value: model.WeaponType.GetWeaponHandle(model.Hammer),
+		Name:  db.WeaponType.String(db.Hammer),
+		Value: db.WeaponType.String(db.Hammer),
 	},
 	{
-		Name:  model.WeaponType.String(model.HuntingHorn),
-		Value: model.WeaponType.GetWeaponHandle(model.HuntingHorn),
+		Name:  db.WeaponType.String(db.HuntingHorn),
+		Value: db.WeaponType.String(db.HuntingHorn),
 	},
 	{
-		Name:  model.WeaponType.String(model.Lance),
-		Value: model.WeaponType.GetWeaponHandle(model.Lance),
+		Name:  db.WeaponType.String(db.Lance),
+		Value: db.WeaponType.String(db.Lance),
 	},
 	{
-		Name:  model.WeaponType.String(model.GunLance),
-		Value: model.WeaponType.GetWeaponHandle(model.GunLance),
+		Name:  db.WeaponType.String(db.GunLance),
+		Value: db.WeaponType.String(db.GunLance),
 	},
 	{
-		Name:  model.WeaponType.String(model.SwitchAxe),
-		Value: model.WeaponType.GetWeaponHandle(model.SwitchAxe),
+		Name:  db.WeaponType.String(db.SwitchAxe),
+		Value: db.WeaponType.String(db.SwitchAxe),
 	},
 	{
-		Name:  model.WeaponType.String(model.ChargeBlade),
-		Value: model.WeaponType.GetWeaponHandle(model.ChargeBlade),
+		Name:  db.WeaponType.String(db.ChargeBlade),
+		Value: db.WeaponType.String(db.ChargeBlade),
 	},
 	{
-		Name:  model.WeaponType.String(model.InsectGlaive),
-		Value: model.WeaponType.GetWeaponHandle(model.InsectGlaive),
+		Name:  db.WeaponType.String(db.InsectGlaive),
+		Value: db.WeaponType.String(db.InsectGlaive),
 	},
 	{
-		Name:  model.WeaponType.String(model.LightBowgun),
-		Value: model.WeaponType.GetWeaponHandle(model.LightBowgun),
+		Name:  db.WeaponType.String(db.LightBowgun),
+		Value: db.WeaponType.String(db.LightBowgun),
 	},
 	{
-		Name:  model.WeaponType.String(model.HeavyBowgun),
-		Value: model.WeaponType.GetWeaponHandle(model.HeavyBowgun),
+		Name:  db.WeaponType.String(db.HeavyBowgun),
+		Value: db.WeaponType.String(db.HeavyBowgun),
 	},
 	{
-		Name:  model.WeaponType.String(model.Bow),
-		Value: model.WeaponType.GetWeaponHandle(model.Bow),
+		Name:  db.WeaponType.String(db.Bow),
+		Value: db.WeaponType.String(db.Bow),
 	},
 }

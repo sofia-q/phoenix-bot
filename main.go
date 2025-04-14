@@ -5,8 +5,9 @@ import (
 	"os"
 	"os/signal"
 	"phoenixbot/bot/commands"
+	"phoenixbot/bot/components"
+	"phoenixbot/bot/db"
 	"phoenixbot/bot/env"
-	"phoenixbot/bot/model"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -30,7 +31,7 @@ func init() {
 				h(s, i)
 			}
 		case discordgo.InteractionMessageComponent:
-			if h, ok := commands.ComponentsHandlers[i.MessageComponentData().CustomID]; ok {
+			if h, ok := components.ComponentHandlers[i.MessageComponentData().CustomID]; ok {
 				h(s, i)
 			}
 		}
@@ -50,7 +51,7 @@ func main() {
 
 	registeredCommands := commands.AddCommands(s)
 
-	model.ConnectDB()
+	db.ConnectDB()
 
 	defer func() {
 		_ = s.Close()
