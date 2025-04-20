@@ -4,17 +4,16 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
-	"phoenixbot/bot/env"
 )
 
 var Db *gorm.DB
 
 var models []interface{}
 
-func ConnectDB() {
+func ConnectDB(user, pw, ip string) {
 
 	log.Println("Connecting to database ...")
-	dsn := env.DatabaseUser + ":" + env.DatabasePw + "@(" + env.DatabaseIp + ":3306)/phoenix_bot_db?charset=utf8mb4&parseTime=True&loc=Local"
+	dsn := user + ":" + pw + "@(" + ip + ":3306)/phoenix_bot_db?charset=utf8mb4&parseTime=True&loc=Local"
 	var err error
 	Db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {

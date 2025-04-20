@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"phoenixbot/bot/db"
 
 	"github.com/joho/godotenv"
 )
@@ -12,9 +13,6 @@ var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
 	RemoveCommands = flag.Bool("rmcmd", false, "Remove all commands after shutdowning or not")
-	DatabaseIp     = ""
-	DatabaseUser   = ""
-	DatabasePw     = ""
 	AppId          = ""
 )
 
@@ -36,23 +34,26 @@ func init() {
 	}
 	flag.Parse()
 
-	DatabaseIp = LoadVar("DATABASE_IP")
-	if DatabaseIp == "" {
+	databaseIp := LoadVar("DATABASE_IP")
+	if databaseIp == "" {
 		fmt.Println("DATABASE_IP environment variable not found")
 		return
 	}
-	DatabaseUser = LoadVar("DATABASE_USER")
-	if DatabaseUser == "" {
+	databaseUser := LoadVar("DATABASE_USER")
+	if databaseUser == "" {
 		fmt.Println("DATABASE_IP environment variable not found")
 		return
 	}
-	DatabasePw = LoadVar("DATABASE_PW")
-	if DatabasePw == "" {
+	databasePw := LoadVar("DATABASE_PW")
+	if databasePw == "" {
 		fmt.Println("DATABASE_IP environment variable not found")
 		return
 	}
+
+	db.ConnectDB(databaseUser, databasePw, databaseIp)
+
 	AppId = LoadVar("APP_ID")
-	if DatabasePw == "" {
+	if AppId == "" {
 		fmt.Println("APP_ID environment variable not found")
 		return
 	}
