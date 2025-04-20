@@ -429,7 +429,7 @@ var (
 
 func AddCommands(s *discordgo.Session) []*discordgo.ApplicationCommand {
 	log.Println("Adding commands...")
-	registeredCommands, err := s.ApplicationCommandBulkOverwrite(env.AppId, "", Commands)
+	registeredCommands, err := s.ApplicationCommandBulkOverwrite(s.State.Application.ID, "", Commands)
 	if err != nil {
 		log.Println("something went wrong registering commands!")
 	}

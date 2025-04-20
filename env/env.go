@@ -13,7 +13,6 @@ var (
 	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
 	BotToken       = flag.String("token", "", "Bot access token")
 	RemoveCommands = flag.Bool("rmcmd", false, "Remove all commands after shutdowning or not")
-	AppId          = ""
 )
 
 func init() {
@@ -51,12 +50,6 @@ func init() {
 	}
 
 	db.ConnectDB(databaseUser, databasePw, databaseIp)
-
-	AppId = LoadVar("APP_ID")
-	if AppId == "" {
-		fmt.Println("APP_ID environment variable not found")
-		return
-	}
 }
 
 func LoadVar(key string) string {
