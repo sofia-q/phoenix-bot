@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     restart: always
     pull_policy: always
+    depends_on:
+      - db
     env_file:
       - .env
     volumes:

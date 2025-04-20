@@ -15,6 +15,7 @@ var (
 	DatabaseIp     = ""
 	DatabaseUser   = ""
 	DatabasePw     = ""
+	AppId          = ""
 )
 
 func init() {
@@ -50,7 +51,11 @@ func init() {
 		fmt.Println("DATABASE_IP environment variable not found")
 		return
 	}
-
+	AppId = LoadVar("APP_ID")
+	if DatabasePw == "" {
+		fmt.Println("APP_ID environment variable not found")
+		return
+	}
 }
 
 func LoadVar(key string) string {

@@ -4,6 +4,8 @@ services:
     image: ghcr.io/sofia-q/phoenix-bot:latest
     restart: always
     pull_policy: always
+    depends_on:
+      - db
     env_file:
       - .env
     volumes:
