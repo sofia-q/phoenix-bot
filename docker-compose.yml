@@ -6,7 +6,9 @@ services:
     restart: always
     pull_policy: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+        restart: true
     env_file:
       - .env
     volumes:
@@ -16,6 +18,12 @@ services:
     image: mysql:9.2.0
     container_name: mysql_db
     restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     ports:
       - 3306:3306
     environment:
