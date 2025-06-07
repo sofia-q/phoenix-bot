@@ -5,6 +5,7 @@ import (
 	"github.com/google/uuid"
 	"log"
 	"phoenixbot/bot/db"
+	"phoenixbot/bot/leaderboard"
 )
 
 func init() {
@@ -12,43 +13,60 @@ func init() {
 }
 
 var verifySpeedrunComponent = component{
-	name: "verify_button_yes",
-	handler: func(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	name:    "verify_button_yes",
+	handler: verifySpeedrun,
+}
 
-		id := i.Interaction.Message.Embeds[0].Footer.Text
+func verifySpeedrun(s *discordgo.Session, i *discordgo.InteractionCreate) {
 
-		foundSpeedrun, err := db.FindSpeedrunById(uuid.MustParse(id))
-		foundSpeedrun.IsVerified = true
-		err = foundSpeedrun.Save()
-		if err != nil {
-			log.Println(err.Error())
-		}
-		i.Interaction.Message.Content = ""
-		i.Interaction.Message.Embeds[0].Title = "Speedrun Verified!"
-		i.Interaction.Message, err = s.ChannelMessageEditComplex(
-			&discordgo.MessageEdit{
-				Content: &i.Interaction.Message.Content,
-				Embeds:  &i.Interaction.Message.Embeds,
-				AllowedMentions: &discordgo.MessageAllowedMentions{
-					Parse: []discordgo.AllowedMentionType{},
-					Users: []string{},
-				},
-				Components: &[]discordgo.MessageComponent{},
-				Channel:    "1358151701420577009",
-				ID:         i.Interaction.Message.ID,
-			})
-		if err != nil {
-			log.Println(err.Error())
-		}
-		respondErr := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
-			Type: discordgo.InteractionResponseChannelMessageWithSource,
-			Data: &discordgo.InteractionResponseData{
-				Content: "Success! Speedrun verified!",
-				Flags:   discordgo.MessageFlagsEphemeral,
+	i.Interaction.Message.Content = ""
+	i.Interaction.Message.Embeds[0].Title = "Speedrun Verified!"
+	var editErr error
+	i.Interaction.Message, editErr = s.ChannelMessageEditComplex(
+		&discordgo.MessageEdit{
+			Content: &i.Interaction.Message.Content,
+			Embeds:  &i.Interaction.Message.Embeds,
+			AllowedMentions: &discordgo.MessageAllowedMentions{
+				Parse: []discordgo.AllowedMentionType{},
+				Users: []string{},
 			},
+			Components: &[]discordgo.MessageComponent{},
+			Channel:    i.Interaction.ChannelID,
+			ID:         i.Interaction.Message.ID,
 		})
-		if err != nil {
-			log.Println(respondErr.Error())
-		}
-	},
+	if editErr != nil {
+		log.Println(editErr.Error())
+	}
+
+	respondErr := s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Success! Speedrun verified!",
+			Flags:   discordgo.MessageFlagsEphemeral,
+		},
+	})
+	if respondErr != nil {
+		log.Println(respondErr.Error())
+	}
+
+	id := i.Interaction.Message.Embeds[0].Footer.Text
+	var foundSpeedrun db.Speedrun
+	findErr := foundSpeedrun.FindSpeedrunById(uuid.MustParse(id))
+	if findErr != nil {
+		log.Println(findErr.Error())
+		return
+	}
+	foundSpeedrun.IsVerified = true
+	saveErr := foundSpeedrun.Save()
+
+	if saveErr != nil {
+		log.Println(saveErr.Error())
+		return
+	}
+	var weaponType db.WeaponType
+	foundType, parseErr := weaponType.ParseStringToWeaponType(foundSpeedrun.WeaponType)
+	if parseErr != nil {
+		log.Println(parseErr.Error())
+	}
+	leaderboard.UpdateLeaderboard(i.GuildID, s, foundType)
 }
