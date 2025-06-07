@@ -4,6 +4,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"log"
 	"phoenixbot/bot/db"
+	"phoenixbot/bot/leaderboard"
 )
 
 func init() {
@@ -74,5 +75,6 @@ func setUpLeaderboard(s *discordgo.Session, i *discordgo.InteractionCreate) {
 		_ = newMessage.Save()
 	}
 
+	leaderboard.InitializeLeaderboard(i.GuildID, s)
 	//todo: update leaderboard
 }

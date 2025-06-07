@@ -11,6 +11,8 @@ func init() {
 	models = append(models, &Speedrun{})
 }
 
+type SpeedrunList []Speedrun
+
 type Speedrun struct {
 	gorm.Model
 	ID            uuid.UUID `gorm:"primary_key"`
@@ -20,6 +22,7 @@ type Speedrun struct {
 	ProofLink     string `gorm:"type:varchar(255)"`
 	Season        int
 	IsVerified    bool
+	GuildID       string
 }
 
 func (speedrun *Speedrun) BeforeCreate(_ *gorm.DB) (err error) {
@@ -27,15 +30,56 @@ func (speedrun *Speedrun) BeforeCreate(_ *gorm.DB) (err error) {
 	return
 }
 
-func FindSpeedrunById(uuid uuid.UUID) (speedrun *Speedrun, err error) {
-	var foundSpeedrun Speedrun
-	result := Db.First(&foundSpeedrun, "id = ?", uuid.String())
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return &foundSpeedrun, nil
+func (speedrun *Speedrun) FindSpeedrunById(uuid uuid.UUID) (err error) {
+	return db.First(&speedrun, "id = ?", uuid.String()).Error
 }
 
 func (speedrun *Speedrun) Save() (err error) {
-	return Db.Save(&speedrun).Error
+	return db.Save(&speedrun).Error
+}
+
+func (speedrunList *SpeedrunList) FindTop10Overall(guildId string, season int) (err error) {
+	query := `
+	SELECT *
+	FROM (
+		SELECT *,
+			   ROW_NUMBER() OVER (
+				   PARTITION BY user_id
+				   ORDER BY time_in_seconds
+			   ) AS user_rank
+		FROM speedruns
+		WHERE guild_id = ? AND season = ? AND is_verified = true
+	) AS best_user_runs
+	WHERE user_rank = 1
+	ORDER BY time_in_seconds
+	LIMIT 10;
+	`
+	return db.Raw(query, guildId, season).Scan(speedrunList).Error
+}
+
+func (speedrunList *SpeedrunList) FindTop5ByWeaponType(weaponType WeaponType, guildId string, season int) (err error) {
+
+	query := `
+	SELECT *
+	FROM (
+		SELECT *,
+			ROW_NUMBER() OVER (
+				PARTITION BY weapon_type
+				ORDER BY time_in_seconds
+			) AS weapon_rank
+		FROM (
+			SELECT *,
+				   ROW_NUMBER() OVER (
+					   PARTITION BY weapon_type, user_id
+					   ORDER BY time_in_seconds
+				   ) AS user_weapon_rank
+			FROM speedruns
+			WHERE weapon_type = ? AND guild_id = ? AND season = ? AND is_verified = true
+		) AS unique_user_runs
+		WHERE user_weapon_rank = 1
+	) AS ranked_runs
+	WHERE weapon_rank <= 5
+	ORDER BY weapon_rank;
+	`
+	return db.Raw(query, weaponType.String(), guildId, season).Scan(speedrunList).Error
 }

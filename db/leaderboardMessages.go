@@ -1,6 +1,8 @@
 package db
 
-import "log"
+import (
+	"log"
+)
 
 func init() {
 	log.Println("registering leaderboard message table")
@@ -15,5 +17,9 @@ type LeaderboardMessage struct {
 }
 
 func (leaderboardMessage *LeaderboardMessage) Save() (err error) {
-	return Db.Save(&leaderboardMessage).Error
+	return db.Save(&leaderboardMessage).Error
+}
+
+func (leaderboardMessage *LeaderboardMessage) FindMessageIdForLeaderboardTypeAndGuildId(leaderboardType string, guildId string) error {
+	return db.Where(&LeaderboardMessage{LeaderboardType: leaderboardType, GuildID: guildId}).Find(leaderboardMessage).Error
 }

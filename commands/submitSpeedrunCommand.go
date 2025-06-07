@@ -97,6 +97,7 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 	newSpeedrun.UserId = i.Member.User.ID
 	newSpeedrun.IsVerified = false
 	newSpeedrun.Season = 1
+	newSpeedrun.GuildID = i.GuildID
 	saveErr := newSpeedrun.Save()
 	if saveErr != nil {
 		log.Println(saveErr)
