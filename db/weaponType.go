@@ -1,5 +1,9 @@
 package db
 
+import (
+	"errors"
+)
+
 type WeaponType int
 
 const (
@@ -36,6 +40,30 @@ var weaponName = map[WeaponType]string{
 	Bow:            "Bow",
 }
 
+var weaponType = map[string]WeaponType{
+	"Sword and Shield": SwordAndShield,
+	"Dual Blades":      DualBlades,
+	"Greatsword":       GreatSword,
+	"Longsword":        LongSword,
+	"Hammer":           Hammer,
+	"Hunting Horn":     HuntingHorn,
+	"Lance":            Lance,
+	"Gunlance":         GunLance,
+	"Switch Axe":       SwitchAxe,
+	"Charge Blade":     ChargeBlade,
+	"Insect Glaive":    InsectGlaive,
+	"Light Bowgun":     LightBowgun,
+	"Heavy Bowgun":     HeavyBowgun,
+	"Bow":              Bow,
+}
+
 func (wt WeaponType) String() string {
 	return weaponName[wt]
+}
+
+func (wt WeaponType) ParseStringToWeaponType(str string) (weapon WeaponType, err error) {
+	if weapon, ok := weaponType[str]; ok {
+		return weapon, nil
+	}
+	return 0, errors.New("invalid color")
 }

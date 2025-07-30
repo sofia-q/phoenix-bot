@@ -429,13 +429,9 @@ var (
 
 func AddCommands(s *discordgo.Session) []*discordgo.ApplicationCommand {
 	log.Println("Adding commands...")
-	registeredCommands := make([]*discordgo.ApplicationCommand, len(Commands))
-	for i, v := range Commands {
-		cmd, err := s.ApplicationCommandCreate(s.State.User.ID, *env.GuildID, v)
-		if err != nil {
-			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
-		}
-		registeredCommands[i] = cmd
+	registeredCommands, err := s.ApplicationCommandBulkOverwrite(s.State.Application.ID, "", Commands)
+	if err != nil {
+		log.Println("something went wrong registering commands!")
 	}
 	return registeredCommands
 }
