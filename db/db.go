@@ -17,8 +17,7 @@ func ConnectDB(user, pw, ip string) {
 	var err error
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		panic("failed to connect database")
-		return
+		panic("failed to connect database: " + err.Error())
 	}
 	log.Print("DB connected:" + db.Migrator().CurrentDatabase())
 	log.Print("Migrating database ...")
