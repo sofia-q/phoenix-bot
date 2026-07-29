@@ -22,5 +22,7 @@ func ConnectDB(user, pw, ip string) {
 	}
 	log.Print("DB connected:" + db.Migrator().CurrentDatabase())
 	log.Print("Migrating database ...")
-	_ = db.AutoMigrate(models...)
+	if err := db.AutoMigrate(models...); err != nil {
+		panic("failed to migrate database: " + err.Error())
+	}
 }
