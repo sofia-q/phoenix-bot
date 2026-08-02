@@ -1,9 +1,10 @@
 package db
 
 import (
+	"log"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"log"
 )
 
 func init() {
@@ -45,13 +46,13 @@ func (speedrunList *SpeedrunList) FindTop10Overall(guildId string, season int) (
 		SELECT *,
 			   ROW_NUMBER() OVER (
 				   PARTITION BY user_id
-				   ORDER BY time_in_seconds
+				   ORDER BY time_in_seconds, created_at
 			   ) AS user_rank
 		FROM speedruns
 		WHERE guild_id = ? AND season = ? AND is_verified = true
 	) AS best_user_runs
 	WHERE user_rank = 1
-	ORDER BY time_in_seconds
+	ORDER BY time_in_seconds, created_at
 	LIMIT 10;
 	`
 	return db.Raw(query, guildId, season).Scan(speedrunList).Error
@@ -65,13 +66,13 @@ func (speedrunList *SpeedrunList) FindTop5ByWeaponType(weaponType WeaponType, gu
 		SELECT *,
 			ROW_NUMBER() OVER (
 				PARTITION BY weapon_type
-				ORDER BY time_in_seconds
+				ORDER BY time_in_seconds, created_at
 			) AS weapon_rank
 		FROM (
 			SELECT *,
 				   ROW_NUMBER() OVER (
 					   PARTITION BY weapon_type, user_id
-					   ORDER BY time_in_seconds
+					   ORDER BY time_in_seconds, created_at
 				   ) AS user_weapon_rank
 			FROM speedruns
 			WHERE weapon_type = ? AND guild_id = ? AND season = ? AND is_verified = true

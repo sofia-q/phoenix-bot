@@ -14,7 +14,7 @@ type component struct {
 }
 
 func registerComponent(c component) {
-	log.Printf("Registering component: " + c.name)
+	log.Println("Registering component: " + c.name)
 	ComponentHandlers[c.name] = c.handler
 }
 

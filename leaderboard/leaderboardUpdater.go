@@ -24,6 +24,7 @@ func updateOverallLeaderboard(guildId string, s *discordgo.Session) {
 	//TODO: season support here
 	err := resultList.FindTop10Overall(guildId, 1)
 	if err != nil {
+		log.Println("Something went wrong loading the overall leaderboard: " + err.Error())
 		return
 	}
 
@@ -34,7 +35,8 @@ func updateOverallLeaderboard(guildId string, s *discordgo.Session) {
 	}
 	serverMessageData := &db.LeaderboardMessage{}
 	_ = serverMessageData.FindMessageIdForLeaderboardTypeAndGuildId("Leaderboard", guildId)
-	if serverMessageData != nil {
+	// A guild that never ran the leaderboard setup has no message to edit.
+	if serverMessageData.MessageID != "" {
 		_, editErr := s.ChannelMessageEditComplex(&discordgo.MessageEdit{
 			ID:      serverMessageData.MessageID,
 			Channel: serverMessageData.ChannelID,
@@ -58,6 +60,7 @@ func updateWeaponLeaderboard(weaponType db.WeaponType, guildId string, s *discor
 	//TODO: season support here
 	err := resultList.FindTop5ByWeaponType(weaponType, guildId, 1)
 	if err != nil {
+		log.Println("Something went wrong loading the " + weaponType.String() + " leaderboard: " + err.Error())
 		return
 	}
 
@@ -68,7 +71,8 @@ func updateWeaponLeaderboard(weaponType db.WeaponType, guildId string, s *discor
 	}
 	serverMessageData := &db.LeaderboardMessage{}
 	_ = serverMessageData.FindMessageIdForLeaderboardTypeAndGuildId(weaponType.String(), guildId)
-	if serverMessageData != nil {
+	// A guild that never ran the leaderboard setup has no message to edit.
+	if serverMessageData.MessageID != "" {
 		_, editErr := s.ChannelMessageEditComplex(&discordgo.MessageEdit{
 			ID:      serverMessageData.MessageID,
 			Channel: serverMessageData.ChannelID,

@@ -65,5 +65,5 @@ func (wt WeaponType) ParseStringToWeaponType(str string) (weapon WeaponType, err
 	if weapon, ok := weaponType[str]; ok {
 		return weapon, nil
 	}
-	return 0, errors.New("invalid color")
+	return 0, errors.New("invalid weapon type")
 }

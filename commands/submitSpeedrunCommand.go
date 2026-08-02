@@ -162,7 +162,7 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 		Embeds: []*discordgo.MessageEmbed{runInfo},
 	})
 	if err != nil {
-		log.Printf(err.Error())
+		log.Println(err.Error())
 	}
 	_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
 		// Ignore type for now, they will be discussed in "responses"

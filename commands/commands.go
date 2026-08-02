@@ -2,11 +2,12 @@ package commands
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"log"
 	"phoenixbot/bot/env"
 	"strings"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 type command struct {
@@ -16,7 +17,7 @@ type command struct {
 }
 
 func registerCommand(c command) {
-	log.Printf("Registering command: " + c.name)
+	log.Println("Registering command: " + c.name)
 	Commands = append(Commands, c.commandMetadata)
 	CommandHandlers[c.name] = c.commandHandler
 }
@@ -24,7 +25,7 @@ func registerCommand(c command) {
 var (
 	integerOptionMinValue          = 1.0
 	dmPermission                   = false
-	defaultMemberPermissions int64 = discordgo.PermissionManageServer
+	defaultMemberPermissions int64 = discordgo.PermissionManageGuild
 
 	Commands = []*discordgo.ApplicationCommand{
 		{
