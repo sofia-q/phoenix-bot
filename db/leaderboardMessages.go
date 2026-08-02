@@ -10,10 +10,10 @@ func init() {
 }
 
 type LeaderboardMessage struct {
-	GuildID         string `gorm:"primary_key"`
-	LeaderboardType string `gorm:"primary_key"`
-	ChannelID       string
-	MessageID       string
+	GuildID         string `gorm:"type:varchar(20);primary_key"`
+	LeaderboardType string `gorm:"type:varchar(64);primary_key"`
+	ChannelID       string `gorm:"type:varchar(20);not null"`
+	MessageID       string `gorm:"type:varchar(20);not null"`
 }
 
 func (leaderboardMessage *LeaderboardMessage) Save() (err error) {

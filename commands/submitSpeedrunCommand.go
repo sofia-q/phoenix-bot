@@ -94,10 +94,35 @@ func handleSubmitSpeedrunCommand(s *discordgo.Session, i *discordgo.InteractionC
 			return
 		}
 	}
+	// A run belongs to a season, and the season is what records which guild it
+	// was run in, so there has to be one running to submit against.
+	season := db.Season{}
+	found, seasonErr := season.FindCurrentForGuild(i.GuildID)
+	if seasonErr != nil {
+		log.Println("Something went wrong loading the current season: " + seasonErr.Error())
+		_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "Error! Something went wrong reading this server's season!",
+				Flags:   discordgo.MessageFlagsEphemeral,
+			},
+		})
+		return
+	}
+	if !found {
+		_ = s.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+			Type: discordgo.InteractionResponseChannelMessageWithSource,
+			Data: &discordgo.InteractionResponseData{
+				Content: "Error! No season is running right now!",
+				Flags:   discordgo.MessageFlagsEphemeral,
+			},
+		})
+		return
+	}
+
 	newSpeedrun.UserId = i.Member.User.ID
 	newSpeedrun.IsVerified = false
-	newSpeedrun.Season = 1
-	newSpeedrun.GuildID = i.GuildID
+	newSpeedrun.SeasonID = season.ID
 	saveErr := newSpeedrun.Save()
 	if saveErr != nil {
 		log.Println(saveErr)

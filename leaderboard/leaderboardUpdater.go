@@ -3,26 +3,49 @@ package leaderboard
 import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
+	"github.com/google/uuid"
 	"log"
 	"phoenixbot/bot/db"
 )
 
 func InitializeLeaderboard(guildId string, s *discordgo.Session) {
-	updateOverallLeaderboard(guildId, s)
+	seasonId, ok := currentSeasonId(guildId)
+	if !ok {
+		return
+	}
+
+	updateOverallLeaderboard(guildId, seasonId, s)
 	for i := 0; i < 14; i++ {
-		updateWeaponLeaderboard(db.WeaponType(i), guildId, s)
+		updateWeaponLeaderboard(db.WeaponType(i), guildId, seasonId, s)
 	}
 }
 
 func UpdateLeaderboard(guildId string, s *discordgo.Session, weaponType db.WeaponType) {
-	updateOverallLeaderboard(guildId, s)
-	updateWeaponLeaderboard(weaponType, guildId, s)
+	seasonId, ok := currentSeasonId(guildId)
+	if !ok {
+		return
+	}
+
+	updateOverallLeaderboard(guildId, seasonId, s)
+	updateWeaponLeaderboard(weaponType, guildId, seasonId, s)
 }
 
-func updateOverallLeaderboard(guildId string, s *discordgo.Session) {
+// currentSeasonId reports which season the leaderboards should be showing.
+// Between seasons there is nothing to render, so callers stop rather than
+// overwrite the standings the last season ended on.
+func currentSeasonId(guildId string) (seasonId uuid.UUID, ok bool) {
+	season := db.Season{}
+	found, err := season.FindCurrentForGuild(guildId)
+	if err != nil {
+		log.Println("Something went wrong loading the current season: " + err.Error())
+		return uuid.UUID{}, false
+	}
+	return season.ID, found
+}
+
+func updateOverallLeaderboard(guildId string, seasonId uuid.UUID, s *discordgo.Session) {
 	var resultList = new(db.SpeedrunList)
-	//TODO: season support here
-	err := resultList.FindTop10Overall(guildId, 1)
+	err := resultList.FindTop10Overall(seasonId)
 	if err != nil {
 		log.Println("Something went wrong loading the overall leaderboard: " + err.Error())
 		return
@@ -53,12 +76,11 @@ func updateOverallLeaderboard(guildId string, s *discordgo.Session) {
 
 }
 
-func updateWeaponLeaderboard(weaponType db.WeaponType, guildId string, s *discordgo.Session) {
+func updateWeaponLeaderboard(weaponType db.WeaponType, guildId string, seasonId uuid.UUID, s *discordgo.Session) {
 	//this is showing errors, help
 
 	var resultList = new(db.SpeedrunList)
-	//TODO: season support here
-	err := resultList.FindTop5ByWeaponType(weaponType, guildId, 1)
+	err := resultList.FindTop5ByWeaponType(weaponType, seasonId)
 	if err != nil {
 		log.Println("Something went wrong loading the " + weaponType.String() + " leaderboard: " + err.Error())
 		return

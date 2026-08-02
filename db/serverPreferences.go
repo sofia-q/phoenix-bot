@@ -13,11 +13,11 @@ func init() {
 	models = append(models, &ServerPreferences{})
 }
 
+// ServerPreferences is a guild's configuration. Which season it is on is not
+// configuration and lives on Season, so the two cannot disagree.
 type ServerPreferences struct {
-	GuildID              string `gorm:"primary_key"`
-	Season               int
-	IsSeasonActive       bool
-	LeaderboardChannelID string
+	GuildID              string `gorm:"type:varchar(20);primary_key"`
+	LeaderboardChannelID string `gorm:"type:varchar(20)"`
 }
 
 func (serverPreferences *ServerPreferences) Save() (err error) {
